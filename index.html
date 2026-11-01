@@ -74,7 +74,7 @@
     </style>
   </head>
   <body class="min-h-screen bg-black text-zinc-100 antialiased selection:bg-amber-500 selection:text-black">
-    <div id="app"></div>
+    <div id="app" class="min-h-screen flex flex-col justify-between w-full relative"></div>
 
     <script>
       // =========================================================================
@@ -341,10 +341,10 @@
       function syncDocumentTheme() {
         if (state.theme === 'dark') {
           document.documentElement.classList.add('dark');
-          document.body.className = 'min-h-screen bg-black text-zinc-100 antialiased selection:bg-amber-500 selection:text-black flex flex-col justify-between transition-colors duration-300 relative overflow-x-hidden';
+          document.body.className = 'min-h-screen bg-black text-zinc-100 antialiased selection:bg-amber-500 selection:text-black transition-colors duration-300 relative overflow-x-hidden';
         } else {
           document.documentElement.classList.remove('dark');
-          document.body.className = 'min-h-screen bg-zinc-100 text-zinc-900 antialiased selection:bg-amber-500 selection:text-black flex flex-col justify-between transition-colors duration-300 relative overflow-x-hidden';
+          document.body.className = 'min-h-screen bg-zinc-100 text-zinc-900 antialiased selection:bg-amber-500 selection:text-black transition-colors duration-300 relative overflow-x-hidden';
         }
       }
 
@@ -948,7 +948,7 @@
           </header>
 
           <!-- Sekcja Główna -->
-          <main class="flex-1 flex flex-col justify-center items-center p-4 sm:p-8 w-full mx-auto relative z-10 ${state.screen === 'running' ? 'max-w-none pt-20 sm:pt-24' : 'max-w-4xl pt-16 sm:pt-20 pb-8 my-auto'}">
+          <main class="flex-1 flex flex-col justify-center items-center px-4 sm:px-8 pt-20 pb-8 w-full mx-auto relative z-10 my-auto ${state.screen === 'running' ? 'max-w-5xl' : 'max-w-4xl'}">
             
             ${state.loadedFromUrlNotice && state.screen === 'setup' ? `
               <div class="mb-6 px-4 py-2.5 rounded-xl text-xs sm:text-sm flex items-center justify-between gap-3 w-full max-w-lg border ${state.theme === 'dark' ? 'bg-zinc-900/90 border-zinc-700 text-zinc-300' : 'bg-white border-zinc-200 text-zinc-700 shadow-sm'}">
@@ -1258,7 +1258,7 @@
 
             <!-- EKRAN 2: ODLICZANIE -->
             ${state.screen === 'running' ? `
-              <div class="w-full flex flex-col items-center justify-center text-center">
+              <div class="w-full my-auto flex flex-col items-center justify-center text-center">
                 <div class="w-full max-w-4xl mx-auto rounded-3xl border p-6 sm:p-9 transition-all shadow-2xl backdrop-blur-xl flex flex-col items-center justify-center ${state.theme === 'dark' ? 'bg-zinc-950/70 border-zinc-800/80 shadow-black/60' : 'bg-white/75 border-zinc-200/90 shadow-zinc-900/10'}">
                   
                   <div class="w-full max-w-2xl px-4 mx-auto my-2 sm:my-5 select-none flex flex-col items-center justify-center">
@@ -1308,7 +1308,7 @@
 
             <!-- EKRAN 3: ZAKOŃCZENIE -->
             ${state.screen === 'finished' ? `
-              <div class="w-full max-w-2xl text-center py-10 px-6 sm:px-10 animate-finish-pop flex flex-col items-center rounded-3xl border shadow-2xl backdrop-blur-xl ${state.theme === 'dark' ? 'bg-zinc-950/70 border-zinc-800/80 shadow-black/60' : 'bg-white/75 border-zinc-200/90 shadow-zinc-900/10'}">
+              <div class="w-full max-w-2xl my-auto text-center py-10 px-6 sm:px-10 animate-finish-pop flex flex-col items-center rounded-3xl border shadow-2xl backdrop-blur-xl ${state.theme === 'dark' ? 'bg-zinc-950/70 border-zinc-800/80 shadow-black/60' : 'bg-white/75 border-zinc-200/90 shadow-zinc-900/10'}">
                 <div class="my-10">
                   <h2 class="text-4xl sm:text-6xl md:text-7xl font-black tracking-tight text-[#e81310] dark:text-[#e81310] break-words leading-tight">
                     ${state.endMessage || t.defaultEndMessage}
@@ -1340,7 +1340,7 @@
           </main>
 
           <!-- Stopka Aplikacji -->
-          <footer class="w-full py-4 px-6 border-t text-xs sm:text-sm transition-colors relative z-10 ${state.theme === 'dark' ? 'border-zinc-900 bg-zinc-950/80 text-zinc-400' : 'border-zinc-200 bg-white text-zinc-600'}">
+          <footer class="w-full py-4 px-6 border-t text-xs sm:text-sm transition-colors relative z-10 shrink-0 mt-auto ${state.theme === 'dark' ? 'border-zinc-900 bg-zinc-950/80 text-zinc-400' : 'border-zinc-200 bg-white text-zinc-600'}">
             <div class="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-3 relative">
               <div class="hidden sm:block w-20"></div>
 
