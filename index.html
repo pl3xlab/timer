@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="pl">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -12,10 +12,1535 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Plus Jakarta Sans', 'system-ui', '-apple-system', 'sans-serif'],
+            },
+            colors: {
+              red: {
+                400: 'rgb(232, 19, 16)',
+                500: 'rgb(232, 19, 16)',
+                600: 'rgb(232, 19, 16)',
+              }
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      body {
+        font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+      }
+      input[type="number"]::-webkit-outer-spin-button,
+      input[type="number"]::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+      input[type="number"] {
+        -moz-appearance: textfield;
+        appearance: textfield;
+      }
+      @keyframes secondPulseAnimation {
+        0%, 100% {
+          filter: brightness(1) drop-shadow(0 0 4px rgba(232, 19, 16, 0.3));
+          opacity: 1;
+          transform: scaleY(1);
+        }
+        50% {
+          filter: brightness(1.8) drop-shadow(0 0 20px rgba(232, 19, 16, 0.9));
+          opacity: 0.45;
+          transform: scaleY(1.08);
+        }
+      }
+      .pulse-second {
+        animation: secondPulseAnimation 1s ease-in-out infinite;
+      }
+      @keyframes finishPop {
+        0% { opacity: 0; transform: scale(0.92); }
+        50% { transform: scale(1.04); }
+        100% { opacity: 1; transform: scale(1); }
+      }
+      .animate-finish-pop {
+        animation: finishPop 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+    </style>
   </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+  <body class="min-h-screen bg-black text-zinc-100 antialiased selection:bg-amber-500 selection:text-black">
+    <div id="app"></div>
+
+    <script>
+      // =========================================================================
+      // TRANSLACJE I STAŁE
+      // =========================================================================
+      const TRANSLATIONS = {
+        pl: {
+          appTitle: 'Czasomierz',
+          setupSubtitle: 'Konfiguracja',
+          runningSubtitle: 'Trwa odliczanie',
+          pausedSubtitle: 'Wstrzymano',
+          completedSubtitle: 'Zakończono',
+          shareLink: 'Udostępnij aplikację znajomemu',
+          shareTooltip: 'Kopiuj link do timera',
+          soundMute: 'Wycisz dźwięki',
+          soundUnmute: 'Włącz dźwięki',
+          soundEnabledToast: 'Dźwięki włączone',
+          soundMutedToast: 'Dźwięki wyciszone',
+          fullscreenEnter: 'Pełny ekran (F)',
+          fullscreenExit: 'Wyjdź z pełnego ekranu (F)',
+          themeLight: 'Jasny',
+          themeDark: 'Ciemny',
+          switchThemeLight: 'Przełącz na tryb jasny',
+          switchThemeDark: 'Przełącz na tryb ciemny',
+          loadedFromUrl: 'Wczytano parametry timera z udostępnionego linku.',
+          setupTitle: 'Ustaw czas odliczania',
+          setupSubtitleDesc: 'Wybierz godziny, minuty i sekundy oraz wiadomość końcową i tło.',
+          quickSelect: 'Szybki wybór',
+          presets: {
+            min1: '1 min',
+            min5: '5 min',
+            min15: '15 min',
+            min30: '30 min',
+            min45: '45 min',
+          },
+          countdownTime: 'Czas odliczania',
+          hours: 'Godziny',
+          minutes: 'Minuty',
+          seconds: 'Sekundy',
+          increaseHours: 'Zwiększ godziny',
+          decreaseHours: 'Zmniejsz godziny',
+          increaseMinutes: 'Zwiększ minuty',
+          decreaseMinutes: 'Zmniejsz minuty',
+          increaseSeconds: 'Zwiększ sekundy',
+          decreaseSeconds: 'Zmniejsz sekundy',
+          finalMessage: 'Wiadomość końcowa',
+          finalMessagePlaceholder: 'np. Czas upłynął! Koniec przerwy!',
+          finalMessageHelp: 'Ten tekst pojawi się na ekranie w momencie zakończenia odliczania.',
+          startCountdown: 'Uruchom odliczanie',
+          pause: 'Pauza',
+          resume: 'Wznów',
+          resetSetup: 'Reset',
+          keyboardTip: 'Wskazówka: Naciśnij Spację aby zatrzymać/wznowić lub F dla pełnego ekranu.',
+          defaultEndMessage: 'Czas upłynął',
+          reset: 'Reset',
+          repeatCountdown: 'Powtórz odliczanie',
+          toastTimeZero: 'Wprowadź czas większy niż 0 sekund',
+          toastCopied: 'Skopiowano link do schowka! Możesz go wysłać komuś.',
+          toastCopyFailed: 'Nie udało się skopiować linku do schowka.',
+          toastPreset: 'Ustawiono preset:',
+          customBgTitle: 'Tło',
+          customBgDesc: 'Wybierz obraz, który chcesz wyświetlać w tle. Najlepiej będzie wyglądał obraz o proporcjach identycznych do twojego ekranu.',
+          uploadJpgBtn: 'Wgraj plik JPG',
+          changeJpgBtn: 'Zmień plik JPG',
+          bgEnableBtn: 'Włącz tło',
+          bgDisableBtn: 'Wyłącz tło',
+          bgStatusEnabled: 'Tło włączone',
+          bgStatusDisabled: 'Tło wyłączone',
+          bgToggleTooltip: 'Włącz lub wyłącz własne tło w dowolnym momencie',
+          removeBgBtn: 'Usuń tło',
+          toastBgUploaded: 'Pomyślnie załadowano nowe tło JPG',
+          toastBgEnabled: 'Własne tło włączone',
+          toastBgDisabled: 'Własne tło wyłączone',
+          toastBgRemoved: 'Własne tło zostało usunięte',
+          toastBgInvalid: 'Proszę wybrać poprawny plik graficzny (JPG/JPEG)',
+          toastBgSizeError: 'Wystąpił błąd podczas wczytywania obrazu',
+          bgOpacityLabel: 'Przeźroczystość tła',
+        },
+        en: {
+          appTitle: 'Timer',
+          setupSubtitle: 'Setup',
+          runningSubtitle: 'Countdown running',
+          pausedSubtitle: 'Paused',
+          completedSubtitle: 'Completed',
+          shareLink: 'Share app with Your friend',
+          shareTooltip: 'Copy link to timer',
+          soundMute: 'Mute sounds',
+          soundUnmute: 'Enable sounds',
+          soundEnabledToast: 'Sounds enabled',
+          soundMutedToast: 'Sounds muted',
+          fullscreenEnter: 'Fullscreen (F)',
+          fullscreenExit: 'Exit fullscreen (F)',
+          themeLight: 'Light',
+          themeDark: 'Dark',
+          switchThemeLight: 'Switch to light mode',
+          switchThemeDark: 'Switch to dark mode',
+          loadedFromUrl: 'Timer settings loaded from shared link.',
+          setupTitle: 'Set countdown timer',
+          setupSubtitleDesc: 'Choose hours, minutes and seconds, final message and background.',
+          quickSelect: 'Quick presets',
+          presets: {
+            min1: '1 min',
+            min5: '5 min',
+            min15: '15 min',
+            min30: '30 min',
+            min45: '45 min',
+          },
+          countdownTime: 'Countdown time',
+          hours: 'Hours',
+          minutes: 'Minutes',
+          seconds: 'Seconds',
+          increaseHours: 'Increase hours',
+          decreaseHours: 'Decrease hours',
+          increaseMinutes: 'Increase minutes',
+          decreaseMinutes: 'Decrease minutes',
+          increaseSeconds: 'Increase seconds',
+          decreaseSeconds: 'Decrease seconds',
+          finalMessage: 'Final message',
+          finalMessagePlaceholder: 'e.g. Time is up! Break is over!',
+          finalMessageHelp: 'This message will appear on the screen once countdown completes.',
+          startCountdown: 'Start countdown',
+          pause: 'Pause',
+          resume: 'Resume',
+          resetSetup: 'Reset',
+          keyboardTip: 'Tip: Press Space to pause/resume or F for fullscreen.',
+          defaultEndMessage: 'Time is up',
+          reset: 'Reset',
+          repeatCountdown: 'Repeat countdown',
+          toastTimeZero: 'Please set a time greater than 0 seconds',
+          toastCopied: 'Link copied to clipboard! You can share it.',
+          toastCopyFailed: 'Failed to copy link to clipboard.',
+          toastPreset: 'Preset applied:',
+          customBgTitle: 'Background',
+          customBgDesc: 'Choose an image you want to display in the background. An image with proportions identical to your screen will look best.',
+          uploadJpgBtn: 'Upload JPG file',
+          changeJpgBtn: 'Change JPG file',
+          bgEnableBtn: 'Enable background',
+          bgDisableBtn: 'Disable background',
+          bgStatusEnabled: 'Background enabled',
+          bgStatusDisabled: 'Background disabled',
+          bgToggleTooltip: 'Enable or disable custom background at any time',
+          removeBgBtn: 'Remove background',
+          toastBgUploaded: 'JPG background successfully loaded',
+          toastBgEnabled: 'Custom background enabled',
+          toastBgDisabled: 'Custom background disabled',
+          toastBgRemoved: 'Custom background removed',
+          toastBgInvalid: 'Please select a valid image file (JPG/JPEG)',
+          toastBgSizeError: 'Error loading image file',
+          bgOpacityLabel: 'Background transparency',
+        }
+      };
+
+      const COLOR_STOPS = [
+        { p: 1.0, r: 255, g: 255, b: 255 },
+        { p: 0.66, r: 250, g: 204, b: 21 },
+        { p: 0.33, r: 249, g: 115, b: 22 },
+        { p: 0.0, r: 232, g: 19, b: 16 }
+      ];
+
+      function getInterpolatedColor(fraction) {
+        const clamped = Math.max(0, Math.min(1, fraction));
+        for (let i = 0; i < COLOR_STOPS.length - 1; i++) {
+          const higher = COLOR_STOPS[i];
+          const lower = COLOR_STOPS[i + 1];
+          if (clamped <= higher.p && clamped >= lower.p) {
+            const range = higher.p - lower.p;
+            const t = range === 0 ? 0 : (clamped - lower.p) / range;
+            const r = Math.round(lower.r + (higher.r - lower.r) * t);
+            const g = Math.round(lower.g + (higher.g - lower.g) * t);
+            const b = Math.round(lower.b + (higher.b - lower.b) * t);
+            return `rgb(${r}, ${g}, ${b})`;
+          }
+        }
+        return 'rgb(232, 19, 16)';
+      }
+
+      function parseUrlParams() {
+        if (typeof window === 'undefined') return { hours: 0, minutes: 5, seconds: 0, msg: null };
+        const params = new URLSearchParams(window.location.search);
+        const h = parseInt(params.get('h') || '0', 10);
+        const m = parseInt(params.get('m') || '0', 10);
+        const s = parseInt(params.get('s') || '0', 10);
+        const msg = params.get('msg');
+        const hasTimeParam = params.has('h') || params.has('m') || params.has('s');
+        return {
+          hours: isNaN(h) || h < 0 ? 0 : Math.min(99, h),
+          minutes: isNaN(m) || m < 0 ? 0 : Math.min(59, m),
+          seconds: isNaN(s) || s < 0 ? 0 : Math.min(59, s),
+          msg: msg ? decodeURIComponent(msg) : null,
+          hasParams: hasTimeParam || params.has('msg')
+        };
+      }
+
+      // =========================================================================
+      // IKONY SVG (LUCIDE)
+      // =========================================================================
+      const ICONS = {
+        clock: `<svg class="w-5 h-5 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+        volume2: `<svg class="w-4 h-4 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>`,
+        volumeX: `<svg class="w-4 h-4 text-zinc-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>`,
+        maximize: `<svg class="w-4 h-4 text-zinc-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 2 2-2v-3"/></svg>`,
+        minimize: `<svg class="w-4 h-4 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3"/><path d="M21 8h-3a2 2 0 0 1-2-2V3"/><path d="M3 16h3a2 2 0 0 1 2 2v3"/><path d="M16 21v-3a2 2 0 0 1 2-2h3"/></svg>`,
+        sun: `<svg class="w-4 h-4 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>`,
+        moon: `<svg class="w-4 h-4 text-zinc-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>`,
+        share2: `<svg class="w-4 h-4 text-zinc-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>`,
+        imageIcon: `<svg class="w-4 h-4 text-amber-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>`,
+        imageOff: `<svg class="w-4 h-4 text-zinc-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="2" y1="2" x2="22" y2="22"/><path d="M10.41 10.41A2 2 0 0 0 9 9"/><path d="M3.59 3.59A2 2 0 0 0 3 5v14a2 2 0 0 0 2 2h14a2 2 0 0 0 1.41-.59"/><path d="M21 15v-6a2 2 0 0 0-2-2h-6"/></svg>`,
+        trash2: `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>`,
+        upload: `<svg class="w-4 h-4 text-amber-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>`,
+        play: `<svg class="w-4 h-4 sm:w-5 sm:h-5 fill-current" viewBox="0 0 24 24"><polygon points="6 3 20 12 6 21 6 3"/></svg>`,
+        pause: `<svg class="w-4 h-4 sm:w-5 sm:h-5 fill-current" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>`,
+        rotateCcw: `<svg class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>`,
+        plus: `<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
+        minus: `<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
+        sparkles: `<svg class="w-4 h-4 text-amber-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>`,
+        instagram: `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>`,
+        facebook: `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>`
+      };
+
+      // =========================================================================
+      // GŁÓWNY STAN APLIKACJI
+      // =========================================================================
+      const initialUrlParams = parseUrlParams();
+
+      const state = {
+        screen: 'setup', // 'setup' | 'running' | 'finished'
+        language: localStorage.getItem('app_lang') || 'pl',
+        theme: localStorage.getItem('app_theme') || 'dark',
+        soundEnabled: localStorage.getItem('app_sound') !== 'false',
+        isFullscreen: false,
+        hours: initialUrlParams.hours,
+        minutes: initialUrlParams.minutes,
+        seconds: initialUrlParams.seconds,
+        endMessage: initialUrlParams.msg !== null ? initialUrlParams.msg : 'Czas upłynął',
+        loadedFromUrlNotice: initialUrlParams.hasParams,
+        totalMs: 0,
+        remainingMs: 0,
+        isRunning: false,
+        bgImage: localStorage.getItem('app_bg_image') || null,
+        bgEnabled: localStorage.getItem('app_bg_enabled') !== 'false',
+        bgOpacity: (() => {
+          const saved = localStorage.getItem('app_bg_opacity');
+          if (saved !== null) {
+            const parsed = parseInt(saved, 10);
+            if (!isNaN(parsed) && parsed >= 0 && parsed <= 100) {
+              return Math.max(0, Math.min(100, Math.round(parsed / 20) * 20));
+            }
+          }
+          return 100;
+        })(),
+        headerVisible: true,
+        toastMessage: null
+      };
+
+      let animationFrameId = null;
+      let endTimeRef = 0;
+      let lastSecondBeep = -1;
+      let audioContext = null;
+      let toastTimer = null;
+      let mouseIdleTimer = null;
+      let countdownStartTimer = null;
+
+      // Sync document theme class
+      function syncDocumentTheme() {
+        if (state.theme === 'dark') {
+          document.documentElement.classList.add('dark');
+          document.body.className = 'min-h-screen bg-black text-zinc-100 antialiased selection:bg-amber-500 selection:text-black flex flex-col justify-between transition-colors duration-300 relative overflow-x-hidden';
+        } else {
+          document.documentElement.classList.remove('dark');
+          document.body.className = 'min-h-screen bg-zinc-100 text-zinc-900 antialiased selection:bg-amber-500 selection:text-black flex flex-col justify-between transition-colors duration-300 relative overflow-x-hidden';
+        }
+      }
+
+      // Sync HTML lang attribute
+      function syncDocumentLang() {
+        document.documentElement.lang = state.language;
+      }
+
+      // Get translation helper
+      function getT() {
+        return TRANSLATIONS[state.language] || TRANSLATIONS.pl;
+      }
+
+      function showToast(msg) {
+        state.toastMessage = msg;
+        render();
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+          if (state.toastMessage === msg) {
+            state.toastMessage = null;
+            render();
+          }
+        }, 3200);
+      }
+
+      // Web Audio API Beeps
+      function getAudioContext() {
+        if (!audioContext) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) audioContext = new AudioCtx();
+        }
+        if (audioContext && audioContext.state === 'suspended') {
+          audioContext.resume();
+        }
+        return audioContext;
+      }
+
+      function playBeep(freq = 880, durationMs = 120, type = 'sine') {
+        if (!state.soundEnabled) return;
+        try {
+          const ctx = getAudioContext();
+          if (!ctx) return;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, ctx.currentTime);
+          gain.gain.setValueAtTime(0.2, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + durationMs / 1000);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + durationMs / 1000);
+        } catch (e) {
+          console.warn(e);
+        }
+      }
+
+      function playEndAlarm() {
+        if (!state.soundEnabled) return;
+        const notes = [523.25, 659.25, 783.99, 1046.50];
+        notes.forEach((freq, idx) => {
+          setTimeout(() => {
+            playBeep(freq, 250, 'triangle');
+          }, idx * 160);
+        });
+      }
+
+      // Format time parts
+      function formatTimeParts(ms) {
+        const totalSec = Math.max(0, Math.ceil(ms / 1000));
+        const h = Math.floor(totalSec / 3600);
+        const m = Math.floor((totalSec % 3600) / 60);
+        const s = totalSec % 60;
+        return {
+          hoursStr: String(h).padStart(2, '0'),
+          minutesStr: String(m).padStart(2, '0'),
+          secondsStr: String(s).padStart(2, '0'),
+          hasHours: h > 0,
+          rawSeconds: totalSec,
+        };
+      }
+
+      // Timer Engine
+      function stopTimerAnimation() {
+        if (animationFrameId !== null) {
+          cancelAnimationFrame(animationFrameId);
+          animationFrameId = null;
+        }
+      }
+
+      function startTimerAnimation() {
+        stopTimerAnimation();
+
+        function tick() {
+          const now = Date.now();
+          const diff = Math.max(0, endTimeRef - now);
+          state.remainingMs = diff;
+
+          const currentSec = Math.ceil(diff / 1000);
+          if (currentSec > 0 && currentSec <= 5 && currentSec !== lastSecondBeep) {
+            lastSecondBeep = currentSec;
+            playBeep(880, 100);
+          }
+
+          if (diff <= 0) {
+            state.remainingMs = 0;
+            state.isRunning = false;
+            state.screen = 'finished';
+            playEndAlarm();
+            render();
+            return;
+          }
+
+          renderRunningTimeOnly();
+          animationFrameId = requestAnimationFrame(tick);
+        }
+
+        animationFrameId = requestAnimationFrame(tick);
+      }
+
+      function handleStartCountdown() {
+        const calculatedTotalMs = (state.hours * 3600 + state.minutes * 60 + state.seconds) * 1000;
+        if (calculatedTotalMs <= 0) {
+          showToast(getT().toastTimeZero);
+          return;
+        }
+        state.totalMs = calculatedTotalMs;
+        state.remainingMs = calculatedTotalMs;
+        state.isRunning = true;
+        state.screen = 'running';
+        endTimeRef = Date.now() + calculatedTotalMs;
+        lastSecondBeep = -1;
+
+        startTimerAnimation();
+        setupHeaderAutoHide();
+        render();
+      }
+
+      function handleTogglePause() {
+        if (state.isRunning) {
+          state.isRunning = false;
+          stopTimerAnimation();
+          state.headerVisible = true;
+        } else {
+          state.isRunning = true;
+          endTimeRef = Date.now() + state.remainingMs;
+          startTimerAnimation();
+          setupHeaderAutoHide();
+        }
+        render();
+      }
+
+      function handleResetToSetup() {
+        state.isRunning = false;
+        stopTimerAnimation();
+        state.screen = 'setup';
+        state.remainingMs = 0;
+        state.headerVisible = true;
+        render();
+      }
+
+      function handleRestartSame() {
+        state.remainingMs = state.totalMs;
+        state.isRunning = true;
+        state.screen = 'running';
+        endTimeRef = Date.now() + state.totalMs;
+        lastSecondBeep = -1;
+
+        startTimerAnimation();
+        setupHeaderAutoHide();
+        render();
+      }
+
+      function setupHeaderAutoHide() {
+        if (countdownStartTimer) clearTimeout(countdownStartTimer);
+        if (mouseIdleTimer) clearTimeout(mouseIdleTimer);
+
+        if (state.screen === 'running' && state.isRunning) {
+          countdownStartTimer = setTimeout(() => {
+            state.headerVisible = false;
+            render();
+          }, 3000);
+        }
+      }
+
+      window.addEventListener('mousemove', () => {
+        if (state.screen === 'running' && state.isRunning) {
+          if (!state.headerVisible) {
+            state.headerVisible = true;
+            render();
+          }
+          if (mouseIdleTimer) clearTimeout(mouseIdleTimer);
+          mouseIdleTimer = setTimeout(() => {
+            if (state.screen === 'running' && state.isRunning) {
+              state.headerVisible = false;
+              render();
+            }
+          }, 3000);
+        }
+      });
+
+      // Keyboard Shortcuts
+      window.addEventListener('keydown', (e) => {
+        if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) {
+          return;
+        }
+        if (e.code === 'Space') {
+          e.preventDefault();
+          if (state.screen === 'running') {
+            handleTogglePause();
+          } else if (state.screen === 'setup') {
+            handleStartCountdown();
+          } else if (state.screen === 'finished') {
+            handleRestartSame();
+          }
+        } else if (e.code === 'KeyF') {
+          e.preventDefault();
+          toggleFullscreen();
+        }
+      });
+
+      function toggleFullscreen() {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().then(() => {
+            state.isFullscreen = true;
+            render();
+          }).catch(err => console.warn(err));
+        } else {
+          if (document.exitFullscreen) {
+            document.exitFullscreen().then(() => {
+              state.isFullscreen = false;
+              render();
+            }).catch(err => console.warn(err));
+          }
+        }
+      }
+
+      document.addEventListener('fullscreenchange', () => {
+        state.isFullscreen = !!document.fullscreenElement;
+        render();
+      });
+
+      // Actions & Handlers
+      function handleShareLink() {
+        const t = getT();
+        const baseUrl = window.location.origin + window.location.pathname;
+        const params = new URLSearchParams();
+        if (state.hours > 0) params.set('h', String(state.hours));
+        if (state.minutes > 0) params.set('m', String(state.minutes));
+        if (state.seconds > 0) params.set('s', String(state.seconds));
+        if (state.endMessage && state.endMessage !== 'Czas upłynął' && state.endMessage !== 'Time is up') {
+          params.set('msg', encodeURIComponent(state.endMessage));
+        }
+        const fullUrl = `${baseUrl}?${params.toString()}`;
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(fullUrl);
+          } else {
+            const textarea = document.createElement('textarea');
+            textarea.value = fullUrl;
+            document.body.appendChild(textarea);
+            textarea.focus();
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+          }
+          showToast(t.toastCopied);
+        } catch {
+          showToast(t.toastCopyFailed);
+        }
+      }
+
+      function handleLanguageChange(newLang) {
+        if (newLang === state.language) return;
+        state.language = newLang;
+        localStorage.setItem('app_lang', newLang);
+        if (newLang === 'en' && state.endMessage === 'Czas upłynął') {
+          state.endMessage = 'Time is up';
+        } else if (newLang === 'pl' && state.endMessage === 'Time is up') {
+          state.endMessage = 'Czas upłynął';
+        }
+        syncDocumentLang();
+        render();
+      }
+
+      function handleThemeToggle() {
+        state.theme = state.theme === 'dark' ? 'light' : 'dark';
+        localStorage.setItem('app_theme', state.theme);
+        syncDocumentTheme();
+        render();
+      }
+
+      function handleSoundToggle() {
+        state.soundEnabled = !state.soundEnabled;
+        localStorage.setItem('app_sound', String(state.soundEnabled));
+        showToast(state.soundEnabled ? getT().soundEnabledToast : getT().soundMutedToast);
+        render();
+      }
+
+      function handleToggleBg() {
+        const t = getT();
+        state.bgEnabled = !state.bgEnabled;
+        localStorage.setItem('app_bg_enabled', String(state.bgEnabled));
+        showToast(state.bgEnabled ? t.toastBgEnabled : t.toastBgDisabled);
+        render();
+      }
+
+      function handleRemoveBg() {
+        state.bgImage = null;
+        state.bgEnabled = false;
+        localStorage.removeItem('app_bg_image');
+        localStorage.setItem('app_bg_enabled', 'false');
+        showToast(getT().toastBgRemoved);
+        render();
+      }
+
+      function handleBgOpacityChange(val) {
+        const clamped = Math.max(0, Math.min(100, Math.round(val / 20) * 20));
+        state.bgOpacity = clamped;
+        try {
+          localStorage.setItem('app_bg_opacity', String(clamped));
+        } catch (err) {
+          console.warn(err);
+        }
+        render();
+      }
+
+      function handleBgFileChange(file) {
+        const t = getT();
+        if (!file) return;
+        if (!file.type.match(/^image\/(jpeg|jpg|png|webp)$/i) && !file.name.match(/\.(jpe?g|png|webp)$/i)) {
+          showToast(t.toastBgInvalid);
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const rawData = event.target?.result;
+          if (!rawData) {
+            showToast(t.toastBgSizeError);
+            return;
+          }
+
+          const img = new Image();
+          img.onload = () => {
+            const maxW = 1920;
+            const maxH = 1080;
+            let w = img.width;
+            let h = img.height;
+
+            if (w > maxW || h > maxH) {
+              if (w / maxW > h / maxH) {
+                h = Math.round((h * maxW) / w);
+                w = maxW;
+              } else {
+                w = Math.round((w * maxH) / h);
+                h = maxH;
+              }
+            }
+
+            const canvas = document.createElement('canvas');
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+              ctx.drawImage(img, 0, 0, w, h);
+              try {
+                const compressed = canvas.toDataURL('image/jpeg', 0.86);
+                state.bgImage = compressed;
+                state.bgEnabled = true;
+                handleBgOpacityChange(100);
+                localStorage.setItem('app_bg_image', compressed);
+                localStorage.setItem('app_bg_enabled', 'true');
+                localStorage.setItem('app_bg_opacity', '100');
+                showToast(t.toastBgUploaded);
+              } catch {
+                state.bgImage = rawData;
+                state.bgEnabled = true;
+                handleBgOpacityChange(100);
+                showToast(t.toastBgUploaded);
+              }
+            }
+            render();
+          };
+          img.src = rawData;
+        };
+        reader.readAsDataURL(file);
+      }
+
+      // Fast DOM update for active timer tick
+      function renderRunningTimeOnly() {
+        const svgText = document.getElementById('svg-timer-text');
+        const svgContainer = document.getElementById('svg-timer-container');
+        const progressBarInner = document.getElementById('progress-bar-inner');
+        const unitsHoursLabel = document.getElementById('unit-hours-label');
+        if (!svgText || !progressBarInner) {
+          render();
+          return;
+        }
+
+        const timeInfo = formatTimeParts(state.remainingMs);
+        const progressFraction = state.totalMs > 0 ? state.remainingMs / state.totalMs : 0;
+        const progressBarColor = getInterpolatedColor(progressFraction);
+        const isLast10Seconds = timeInfo.rawSeconds <= 10 && timeInfo.rawSeconds > 0;
+
+        const timeStr = timeInfo.hasHours
+          ? `${timeInfo.hoursStr}:${timeInfo.minutesStr}:${timeInfo.secondsStr}`
+          : `${timeInfo.minutesStr}:${timeInfo.secondsStr}`;
+
+        svgText.textContent = timeStr;
+        if (svgContainer) {
+          svgContainer.setAttribute('viewBox', timeInfo.hasHours ? "0 0 780 160" : "0 0 520 160");
+        }
+
+        if (isLast10Seconds) {
+          svgText.parentElement.setAttribute('class', 'w-full h-auto transition-colors select-none text-[#e81310]');
+          progressBarInner.setAttribute('class', `h-full rounded-full transition-all duration-200 ${state.isRunning ? 'pulse-second' : ''}`);
+          progressBarInner.style.boxShadow = '0 0 16px rgba(232, 19, 16, 0.8)';
+        } else {
+          svgText.parentElement.setAttribute('class', `w-full h-auto transition-colors select-none ${state.theme === 'dark' ? 'text-zinc-100' : 'text-zinc-900'}`);
+          progressBarInner.setAttribute('class', 'h-full rounded-full transition-all duration-200');
+          progressBarInner.style.boxShadow = `0 0 10px ${progressBarColor}40`;
+        }
+
+        progressBarInner.style.width = `${Math.max(1, progressFraction * 100)}%`;
+        progressBarInner.style.backgroundColor = progressBarColor;
+
+        if (unitsHoursLabel) {
+          unitsHoursLabel.style.display = timeInfo.hasHours ? 'inline' : 'none';
+        }
+      }
+
+      // =========================================================================
+      // GŁÓWNA FUNKCJA RENDERUJĄCA W VANILLA JS
+      // =========================================================================
+      function render() {
+        syncDocumentTheme();
+        syncDocumentLang();
+
+        const t = getT();
+        const timeInfo = formatTimeParts(state.remainingMs);
+        const progressFraction = state.totalMs > 0 ? state.remainingMs / state.totalMs : 0;
+        const progressBarColor = getInterpolatedColor(progressFraction);
+        const isLast10Seconds = timeInfo.rawSeconds <= 10 && timeInfo.rawSeconds > 0;
+
+        const appHtml = `
+          <!-- Tło użytkownika -->
+          ${state.bgImage && state.bgEnabled ? `
+            <div
+              aria-hidden="true"
+              class="fixed inset-0 pointer-events-none z-0 bg-cover bg-center bg-no-repeat transition-all duration-300"
+              style="background-image: url('${state.bgImage}'); background-size: cover; background-position: center; background-repeat: no-repeat; width: 100vw; height: 100vh; opacity: ${state.bgOpacity / 100};"
+            ></div>
+            <div
+              aria-hidden="true"
+              class="fixed inset-0 pointer-events-none z-0 transition-opacity duration-300 ${state.theme === 'dark' ? 'bg-black/60 backdrop-blur-[1px]' : 'backdrop-blur-[1px]'}"
+            ></div>
+          ` : ''}
+
+          <!-- Pasek Górny -->
+          <header class="w-full border-b transition-all duration-300 transform fixed top-0 left-0 right-0 z-30 ${
+            state.screen === 'running' && state.isRunning && !state.headerVisible
+              ? 'opacity-0 -translate-y-full pointer-events-none'
+              : 'opacity-100 translate-y-0'
+          } ${
+            state.theme === 'dark'
+              ? state.bgImage && state.bgEnabled ? 'border-zinc-800/80 bg-zinc-950/80 backdrop-blur-md' : 'border-zinc-800/80 bg-zinc-950/60 backdrop-blur-md'
+              : state.bgImage && state.bgEnabled ? 'border-zinc-200/90 bg-white/85 backdrop-blur-md' : 'border-zinc-200 bg-white/70 backdrop-blur-md'
+          }">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 min-h-16 py-2 flex items-center justify-between gap-2 sm:gap-4">
+              
+              <!-- Logo / Tytuł -->
+              <div class="flex items-center gap-3 shrink-0">
+                <div class="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm shadow-sm transition-colors ${state.theme === 'dark' ? 'bg-zinc-800 text-zinc-100' : 'bg-zinc-900 text-white'}">
+                  ${ICONS.clock}
+                </div>
+                <div>
+                  <h1 class="text-base sm:text-lg font-bold tracking-tight">${t.appTitle}</h1>
+                  <span class="text-xs block -mt-0.5 text-zinc-500">
+                    ${state.screen === 'setup' ? t.setupSubtitle : ''}
+                    ${state.screen === 'running' ? (state.isRunning ? t.runningSubtitle : t.pausedSubtitle) : ''}
+                    ${state.screen === 'finished' ? t.completedSubtitle : ''}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Środkowe Przyciski Sterujące podczas odliczania -->
+              ${state.screen === 'running' ? `
+                <div class="flex flex-col items-center justify-center text-center mx-auto px-2">
+                  <div class="flex items-center gap-2">
+                    <button
+                      id="btn-toggle-pause-header"
+                      type="button"
+                      class="py-1.5 px-3.5 sm:px-5 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-1.5 transition-all shadow-xs active:scale-95 cursor-pointer ${
+                        state.isRunning
+                          ? state.theme === 'dark'
+                            ? 'bg-zinc-800 hover:bg-zinc-700 text-zinc-100 border border-zinc-700'
+                            : 'bg-zinc-200 hover:bg-zinc-300 text-zinc-900 border border-zinc-300'
+                          : state.theme === 'dark'
+                          ? 'bg-zinc-100 hover:bg-white text-zinc-950 shadow-white/10'
+                          : 'bg-zinc-900 hover:bg-zinc-800 text-white shadow-zinc-900/20'
+                      }"
+                    >
+                      ${state.isRunning ? `${ICONS.pause}<span>${t.pause}</span>` : `${ICONS.play}<span>${t.resume}</span>`}
+                    </button>
+
+                    <button
+                      id="btn-reset-header"
+                      type="button"
+                      class="py-1.5 px-3.5 sm:px-5 rounded-xl font-semibold text-xs sm:text-sm flex items-center gap-1.5 transition-all border active:scale-95 cursor-pointer ${
+                        state.theme === 'dark'
+                          ? 'border-zinc-800 bg-zinc-900/80 text-zinc-300 hover:bg-zinc-800 hover:text-white'
+                          : 'border-zinc-300 bg-white text-zinc-700 hover:bg-zinc-50 hover:text-zinc-900 shadow-xs'
+                      }"
+                    >
+                      ${ICONS.rotateCcw}
+                      <span>${t.resetSetup}</span>
+                    </button>
+                  </div>
+
+                  <span class="text-[10px] sm:text-xs mt-0.5 hidden md:inline-block leading-tight ${state.theme === 'dark' ? 'text-zinc-400' : 'text-zinc-500'}">
+                    ${t.keyboardTip}
+                  </span>
+                </div>
+              ` : ''}
+
+              <!-- Przyciski Narzędziowe -->
+              <div class="flex items-center gap-2 shrink-0">
+                <button
+                  id="btn-sound-toggle"
+                  title="${state.soundEnabled ? t.soundMute : t.soundUnmute}"
+                  class="p-2 rounded-lg text-xs font-medium transition-colors border cursor-pointer ${state.theme === 'dark' ? 'border-zinc-800 bg-zinc-900/80 text-zinc-300 hover:bg-zinc-800' : 'border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50 shadow-sm'}"
+                >
+                  ${state.soundEnabled ? ICONS.volume2 : ICONS.volumeX}
+                </button>
+
+                <button
+                  id="btn-fullscreen-toggle"
+                  title="${state.isFullscreen ? t.fullscreenExit : t.fullscreenEnter}"
+                  class="p-2 rounded-lg text-xs font-medium transition-colors border cursor-pointer ${state.theme === 'dark' ? 'border-zinc-800 bg-zinc-900/80 text-zinc-300 hover:bg-zinc-800' : 'border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50 shadow-sm'}"
+                >
+                  ${state.isFullscreen ? ICONS.minimize : ICONS.maximize}
+                </button>
+
+                <button
+                  id="btn-theme-toggle"
+                  title="${state.theme === 'dark' ? t.switchThemeLight : t.switchThemeDark}"
+                  class="px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all border cursor-pointer ${state.theme === 'dark' ? 'border-zinc-800 bg-zinc-900 text-zinc-200 hover:bg-zinc-800 hover:text-white' : 'border-zinc-200 bg-white text-zinc-800 hover:bg-zinc-50 shadow-sm'}"
+                >
+                  ${state.theme === 'dark' ? `${ICONS.sun}<span class="hidden md:inline">${t.themeLight}</span>` : `${ICONS.moon}<span class="hidden md:inline">${t.themeDark}</span>`}
+                </button>
+
+                <div class="flex items-center rounded-lg border p-0.5 text-xs font-semibold transition-colors ${state.theme === 'dark' ? 'border-zinc-800 bg-zinc-900 text-zinc-300' : 'border-zinc-200 bg-white text-zinc-700 shadow-sm'}">
+                  <button
+                    id="btn-lang-pl"
+                    type="button"
+                    title="Wersja polska"
+                    class="px-2.5 py-1.5 rounded-md transition-all cursor-pointer ${state.language === 'pl' ? (state.theme === 'dark' ? 'bg-zinc-800 text-white font-bold' : 'bg-zinc-900 text-white font-bold shadow-sm') : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100'}"
+                  >
+                    PL
+                  </button>
+                  <button
+                    id="btn-lang-en"
+                    type="button"
+                    title="English version"
+                    class="px-2.5 py-1.5 rounded-md transition-all cursor-pointer ${state.language === 'en' ? (state.theme === 'dark' ? 'bg-zinc-800 text-white font-bold' : 'bg-zinc-900 text-white font-bold shadow-sm') : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100'}"
+                  >
+                    EN
+                  </button>
+                </div>
+
+                ${state.bgImage ? `
+                  <button
+                    id="btn-toggle-bg-header"
+                    type="button"
+                    title="${state.bgEnabled ? t.bgDisableBtn : t.bgEnableBtn}"
+                    class="p-2 rounded-lg text-xs font-medium transition-colors border cursor-pointer ${
+                      state.bgEnabled
+                        ? state.theme === 'dark'
+                          ? 'border-amber-500/50 bg-amber-500/15 text-amber-300 hover:bg-amber-500/25'
+                          : 'border-amber-400 bg-amber-50 text-amber-800 hover:bg-amber-100 shadow-sm'
+                        : state.theme === 'dark'
+                        ? 'border-zinc-800 bg-zinc-900/80 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200'
+                        : 'border-zinc-200 bg-white text-zinc-400 hover:bg-zinc-50 hover:text-zinc-700 shadow-sm'
+                    }"
+                  >
+                    ${state.bgEnabled ? ICONS.imageIcon : ICONS.imageOff}
+                  </button>
+                ` : ''}
+
+                <button
+                  id="btn-share-link"
+                  title="${t.shareTooltip}"
+                  class="p-2 sm:px-3 sm:py-2 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors border cursor-pointer ${state.theme === 'dark' ? 'border-zinc-800 bg-zinc-900/80 text-zinc-300 hover:bg-zinc-800 hover:text-white' : 'border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50 hover:text-zinc-900 shadow-sm'}"
+                >
+                  ${ICONS.share2}
+                  <span class="hidden sm:inline">${t.shareLink}</span>
+                </button>
+              </div>
+            </div>
+          </header>
+
+          <!-- Sekcja Główna -->
+          <main class="flex-1 flex flex-col justify-center items-center p-4 sm:p-8 w-full mx-auto relative z-10 ${state.screen === 'running' ? 'max-w-none pt-20 sm:pt-24' : 'max-w-4xl pt-16 sm:pt-20 pb-8 my-auto'}">
+            
+            ${state.loadedFromUrlNotice && state.screen === 'setup' ? `
+              <div class="mb-6 px-4 py-2.5 rounded-xl text-xs sm:text-sm flex items-center justify-between gap-3 w-full max-w-lg border ${state.theme === 'dark' ? 'bg-zinc-900/90 border-zinc-700 text-zinc-300' : 'bg-white border-zinc-200 text-zinc-700 shadow-sm'}">
+                <div class="flex items-center gap-2">
+                  ${ICONS.sparkles}
+                  <span>${t.loadedFromUrl}</span>
+                </div>
+                <button id="btn-close-notice" class="text-xs opacity-60 hover:opacity-100 font-bold cursor-pointer">✕</button>
+              </div>
+            ` : ''}
+
+            <!-- EKRAN 1: KONFIGURACJA -->
+            ${state.screen === 'setup' ? `
+              <div class="w-full max-w-xl my-auto rounded-3xl border p-6 sm:p-9 transition-all shadow-2xl backdrop-blur-xl ${state.theme === 'dark' ? 'bg-zinc-950/70 border-zinc-800/80 shadow-black/60' : 'bg-white/75 border-zinc-200/90 shadow-zinc-900/10'}">
+                
+                <div class="text-center mb-8">
+                  <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">${t.setupTitle}</h2>
+                  <p class="text-sm mt-1.5 ${state.theme === 'dark' ? 'text-zinc-400' : 'text-zinc-500'}">
+                    ${t.setupSubtitleDesc}
+                  </p>
+                </div>
+
+                <!-- Szybki wybór -->
+                <div class="mb-7">
+                  <span class="text-xs font-semibold uppercase tracking-wider block mb-2.5 ${state.theme === 'dark' ? 'text-zinc-400' : 'text-zinc-500'}">
+                    ${t.quickSelect}
+                  </span>
+                  <div class="grid grid-cols-3 sm:grid-cols-5 gap-2">
+                    ${[
+                      { h: 0, m: 1, s: 0, label: t.presets.min1 },
+                      { h: 0, m: 5, s: 0, label: t.presets.min5 },
+                      { h: 0, m: 15, s: 0, label: t.presets.min15 },
+                      { h: 0, m: 30, s: 0, label: t.presets.min30 },
+                      { h: 0, m: 45, s: 0, label: t.presets.min45 }
+                    ].map(p => {
+                      const isActive = state.hours === p.h && state.minutes === p.m && state.seconds === p.s;
+                      return `
+                        <button
+                          type="button"
+                          data-preset-h="${p.h}"
+                          data-preset-m="${p.m}"
+                          data-preset-s="${p.s}"
+                          data-preset-label="${p.label}"
+                          class="btn-preset py-2 px-2 rounded-xl text-xs font-semibold transition-all border cursor-pointer ${
+                            isActive
+                              ? state.theme === 'dark'
+                                ? 'bg-zinc-100 text-zinc-900 border-white shadow-sm'
+                                : 'bg-zinc-900 text-white border-zinc-900 shadow-sm'
+                              : state.theme === 'dark'
+                              ? 'bg-zinc-950/60 border-zinc-800 text-zinc-300 hover:bg-zinc-800 hover:text-white'
+                              : 'bg-zinc-50 border-zinc-200 text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900'
+                          }"
+                        >
+                          ${p.label}
+                        </button>
+                      `;
+                    }).join('')}
+                  </div>
+                </div>
+
+                <!-- Wprowadzanie Czasu -->
+                <div class="mb-7">
+                  <span class="text-xs font-semibold uppercase tracking-wider block mb-2.5 ${state.theme === 'dark' ? 'text-zinc-400' : 'text-zinc-500'}">
+                    ${t.countdownTime}
+                  </span>
+
+                  <div class="grid grid-cols-3 gap-3 sm:gap-4 text-center">
+                    
+                    <!-- Godziny -->
+                    <div class="p-3 sm:p-4 rounded-2xl border flex flex-col items-center backdrop-blur-md ${state.theme === 'dark' ? 'bg-zinc-950/70 border-zinc-800/80' : 'bg-white/75 border-zinc-200/90'}">
+                      <label for="hours-input" class="text-xs font-medium mb-1.5 ${state.theme === 'dark' ? 'text-zinc-400' : 'text-zinc-500'}">
+                        ${t.hours}
+                      </label>
+                      <div class="flex items-center gap-1.5 w-full justify-center">
+                        <button id="btn-hours-dec" type="button" title="${t.decreaseHours}" class="w-7 h-7 rounded-lg flex items-center justify-center transition-colors text-sm cursor-pointer ${state.theme === 'dark' ? 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300' : 'bg-zinc-200 hover:bg-zinc-300 text-zinc-700'}">
+                          ${ICONS.minus}
+                        </button>
+                        <input
+                          id="hours-input"
+                          type="number"
+                          min="0"
+                          max="99"
+                          value="${state.hours}"
+                          class="w-14 sm:w-16 text-center text-2xl sm:text-3xl font-extrabold bg-transparent outline-none tabular-nums"
+                        />
+                        <button id="btn-hours-inc" type="button" title="${t.increaseHours}" class="w-7 h-7 rounded-lg flex items-center justify-center transition-colors text-sm cursor-pointer ${state.theme === 'dark' ? 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300' : 'bg-zinc-200 hover:bg-zinc-300 text-zinc-700'}">
+                          ${ICONS.plus}
+                        </button>
+                      </div>
+
+                      <div class="grid grid-cols-3 gap-1 w-full mt-2.5 pt-2 border-t border-zinc-200/70 dark:border-zinc-800/80">
+                        ${[10, 20, 30].map(v => `
+                          <button type="button" data-add-h="${v}" class="btn-add-h py-1 text-[11px] font-semibold rounded-md border transition-all active:scale-95 cursor-pointer ${state.theme === 'dark' ? 'border-zinc-800 bg-zinc-900/90 hover:bg-zinc-800 text-zinc-300 hover:text-white' : 'border-zinc-200 bg-white hover:bg-zinc-100 text-zinc-700 hover:text-zinc-900 shadow-xs'}">+${v}</button>
+                        `).join('')}
+                      </div>
+
+                      <button id="btn-hours-reset" type="button" class="w-full mt-1.5 py-1 text-[11px] font-semibold rounded-md border flex items-center justify-center gap-1 transition-all active:scale-95 cursor-pointer ${state.theme === 'dark' ? 'border-zinc-800 bg-zinc-950/60 hover:bg-zinc-800 text-zinc-400 hover:text-white' : 'border-zinc-200 bg-zinc-100 hover:bg-zinc-200/80 text-zinc-600 hover:text-zinc-900'}">
+                        ${ICONS.rotateCcw}
+                        <span>${t.reset}</span>
+                      </button>
+                    </div>
+
+                    <!-- Minuty -->
+                    <div class="p-3 sm:p-4 rounded-2xl border flex flex-col items-center backdrop-blur-md ${state.theme === 'dark' ? 'bg-zinc-950/70 border-zinc-800/80' : 'bg-white/75 border-zinc-200/90'}">
+                      <label for="minutes-input" class="text-xs font-medium mb-1.5 ${state.theme === 'dark' ? 'text-zinc-400' : 'text-zinc-500'}">
+                        ${t.minutes}
+                      </label>
+                      <div class="flex items-center gap-1.5 w-full justify-center">
+                        <button id="btn-minutes-dec" type="button" title="${t.decreaseMinutes}" class="w-7 h-7 rounded-lg flex items-center justify-center transition-colors text-sm cursor-pointer ${state.theme === 'dark' ? 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300' : 'bg-zinc-200 hover:bg-zinc-300 text-zinc-700'}">
+                          ${ICONS.minus}
+                        </button>
+                        <input
+                          id="minutes-input"
+                          type="number"
+                          min="0"
+                          max="59"
+                          value="${state.minutes}"
+                          class="w-14 sm:w-16 text-center text-2xl sm:text-3xl font-extrabold bg-transparent outline-none tabular-nums"
+                        />
+                        <button id="btn-minutes-inc" type="button" title="${t.increaseMinutes}" class="w-7 h-7 rounded-lg flex items-center justify-center transition-colors text-sm cursor-pointer ${state.theme === 'dark' ? 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300' : 'bg-zinc-200 hover:bg-zinc-300 text-zinc-700'}">
+                          ${ICONS.plus}
+                        </button>
+                      </div>
+
+                      <div class="grid grid-cols-3 gap-1 w-full mt-2.5 pt-2 border-t border-zinc-200/70 dark:border-zinc-800/80">
+                        ${[10, 20, 30].map(v => `
+                          <button type="button" data-add-m="${v}" class="btn-add-m py-1 text-[11px] font-semibold rounded-md border transition-all active:scale-95 cursor-pointer ${state.theme === 'dark' ? 'border-zinc-800 bg-zinc-900/90 hover:bg-zinc-800 text-zinc-300 hover:text-white' : 'border-zinc-200 bg-white hover:bg-zinc-100 text-zinc-700 hover:text-zinc-900 shadow-xs'}">+${v}</button>
+                        `).join('')}
+                      </div>
+
+                      <button id="btn-minutes-reset" type="button" class="w-full mt-1.5 py-1 text-[11px] font-semibold rounded-md border flex items-center justify-center gap-1 transition-all active:scale-95 cursor-pointer ${state.theme === 'dark' ? 'border-zinc-800 bg-zinc-950/60 hover:bg-zinc-800 text-zinc-400 hover:text-white' : 'border-zinc-200 bg-zinc-100 hover:bg-zinc-200/80 text-zinc-600 hover:text-zinc-900'}">
+                        ${ICONS.rotateCcw}
+                        <span>${t.reset}</span>
+                      </button>
+                    </div>
+
+                    <!-- Sekundy -->
+                    <div class="p-3 sm:p-4 rounded-2xl border flex flex-col items-center backdrop-blur-md ${state.theme === 'dark' ? 'bg-zinc-950/70 border-zinc-800/80' : 'bg-white/75 border-zinc-200/90'}">
+                      <label for="seconds-input" class="text-xs font-medium mb-1.5 ${state.theme === 'dark' ? 'text-zinc-400' : 'text-zinc-500'}">
+                        ${t.seconds}
+                      </label>
+                      <div class="flex items-center gap-1.5 w-full justify-center">
+                        <button id="btn-seconds-dec" type="button" title="${t.decreaseSeconds}" class="w-7 h-7 rounded-lg flex items-center justify-center transition-colors text-sm cursor-pointer ${state.theme === 'dark' ? 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300' : 'bg-zinc-200 hover:bg-zinc-300 text-zinc-700'}">
+                          ${ICONS.minus}
+                        </button>
+                        <input
+                          id="seconds-input"
+                          type="number"
+                          min="0"
+                          max="59"
+                          value="${state.seconds}"
+                          class="w-14 sm:w-16 text-center text-2xl sm:text-3xl font-extrabold bg-transparent outline-none tabular-nums"
+                        />
+                        <button id="btn-seconds-inc" type="button" title="${t.increaseSeconds}" class="w-7 h-7 rounded-lg flex items-center justify-center transition-colors text-sm cursor-pointer ${state.theme === 'dark' ? 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300' : 'bg-zinc-200 hover:bg-zinc-300 text-zinc-700'}">
+                          ${ICONS.plus}
+                        </button>
+                      </div>
+
+                      <div class="grid grid-cols-3 gap-1 w-full mt-2.5 pt-2 border-t border-zinc-200/70 dark:border-zinc-800/80">
+                        ${[10, 20, 30].map(v => `
+                          <button type="button" data-add-s="${v}" class="btn-add-s py-1 text-[11px] font-semibold rounded-md border transition-all active:scale-95 cursor-pointer ${state.theme === 'dark' ? 'border-zinc-800 bg-zinc-900/90 hover:bg-zinc-800 text-zinc-300 hover:text-white' : 'border-zinc-200 bg-white hover:bg-zinc-100 text-zinc-700 hover:text-zinc-900 shadow-xs'}">+${v}</button>
+                        `).join('')}
+                      </div>
+
+                      <button id="btn-seconds-reset" type="button" class="w-full mt-1.5 py-1 text-[11px] font-semibold rounded-md border flex items-center justify-center gap-1 transition-all active:scale-95 cursor-pointer ${state.theme === 'dark' ? 'border-zinc-800 bg-zinc-950/60 hover:bg-zinc-800 text-zinc-400 hover:text-white' : 'border-zinc-200 bg-zinc-100 hover:bg-zinc-200/80 text-zinc-600 hover:text-zinc-900'}">
+                        ${ICONS.rotateCcw}
+                        <span>${t.reset}</span>
+                      </button>
+                    </div>
+
+                  </div>
+                </div>
+
+                <!-- Wiadomość Koncowa -->
+                <div class="mb-8">
+                  <label for="end-message" class="text-xs font-semibold uppercase tracking-wider block mb-2 ${state.theme === 'dark' ? 'text-zinc-400' : 'text-zinc-500'}">
+                    ${t.finalMessage}
+                  </label>
+                  <div class="relative">
+                    <input
+                      id="end-message"
+                      type="text"
+                      maxlength="100"
+                      value="${state.endMessage}"
+                      placeholder="${t.finalMessagePlaceholder}"
+                      class="w-full px-4 py-3 rounded-xl border text-sm font-medium transition-colors outline-none focus:ring-2 ${state.theme === 'dark' ? 'bg-zinc-950/80 border-zinc-800 text-zinc-100 focus:ring-zinc-600 focus:border-zinc-700 placeholder-zinc-600' : 'bg-zinc-50 border-zinc-200 text-zinc-900 focus:ring-zinc-400 focus:border-zinc-300 placeholder-zinc-400'}"
+                    />
+                    <span id="end-msg-counter" class="absolute right-3.5 top-3.5 text-xs ${state.theme === 'dark' ? 'text-zinc-600' : 'text-zinc-400'}">
+                      ${state.endMessage.length}/100
+                    </span>
+                  </div>
+                  <p class="text-xs mt-1.5 ${state.theme === 'dark' ? 'text-zinc-500' : 'text-zinc-400'}">
+                    ${t.finalMessageHelp}
+                  </p>
+                </div>
+
+                <!-- Tło Custom JPG -->
+                <div class="mb-8 p-4 sm:p-5 rounded-2xl border transition-colors backdrop-blur-md ${state.theme === 'dark' ? 'bg-zinc-950/70 border-zinc-800/80' : 'bg-white/75 border-zinc-200/90 shadow-xs'}">
+                  <div class="flex items-center justify-between gap-2 mb-2">
+                    <div class="flex items-center gap-2">
+                      ${ICONS.imageIcon}
+                      <span class="text-xs font-semibold uppercase tracking-wider ${state.theme === 'dark' ? 'text-zinc-300' : 'text-zinc-700'}">
+                        ${t.customBgTitle}
+                      </span>
+                    </div>
+                    ${state.bgImage ? `
+                      <span class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full border transition-colors ${state.bgEnabled ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-zinc-500/10 border-zinc-500/30 text-zinc-400'}">
+                        ${state.bgEnabled ? t.bgStatusEnabled : t.bgStatusDisabled}
+                      </span>
+                    ` : ''}
+                  </div>
+
+                  <p class="text-xs mb-3.5 leading-relaxed ${state.theme === 'dark' ? 'text-zinc-400' : 'text-zinc-500'}">
+                    ${t.customBgDesc}
+                  </p>
+
+                  <input id="file-bg-input" type="file" accept=".jpg,.jpeg,image/jpeg" class="hidden" />
+
+                  <div class="flex flex-wrap items-center gap-2.5">
+                    <button id="btn-upload-file" type="button" class="flex-1 min-w-[160px] py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 border transition-all cursor-pointer shadow-xs active:scale-[0.98] ${state.theme === 'dark' ? 'border-zinc-700 bg-zinc-800 hover:bg-zinc-700 text-zinc-100 hover:border-zinc-600' : 'border-zinc-300 bg-white hover:bg-zinc-100 text-zinc-800'}">
+                      ${ICONS.upload}
+                      <span>${state.bgImage ? t.changeJpgBtn : t.uploadJpgBtn}</span>
+                    </button>
+
+                    <button id="btn-toggle-bg" type="button" title="${t.bgToggleTooltip}" class="py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 border transition-all cursor-pointer shadow-xs active:scale-[0.98] ${!state.bgImage ? (state.theme === 'dark' ? 'border-zinc-800 bg-zinc-900/60 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800' : 'border-zinc-200 bg-zinc-100 text-zinc-400 hover:text-zinc-700') : state.bgEnabled ? (state.theme === 'dark' ? 'border-emerald-500/50 bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/25' : 'border-emerald-500 bg-emerald-50 text-emerald-800 hover:bg-emerald-100') : (state.theme === 'dark' ? 'border-zinc-700 bg-zinc-900 text-zinc-300 hover:bg-zinc-800' : 'border-zinc-300 bg-white text-zinc-600 hover:bg-zinc-100')}">
+                      ${state.bgEnabled && state.bgImage ? `${ICONS.imageIcon}<span>${t.bgDisableBtn}</span>` : `${ICONS.imageOff}<span>${t.bgEnableBtn}</span>`}
+                    </button>
+
+                    ${state.bgImage ? `
+                      <button id="btn-remove-bg" type="button" title="${t.removeBgBtn}" class="p-2.5 rounded-xl border transition-colors cursor-pointer active:scale-95 ${state.theme === 'dark' ? 'border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-red-400 hover:border-red-900/50 hover:bg-red-950/20' : 'border-zinc-200 bg-white text-zinc-500 hover:text-red-600 hover:border-red-200 hover:bg-red-50 shadow-xs'}">
+                        ${ICONS.trash2}
+                      </button>
+                    ` : ''}
+                  </div>
+
+                  ${state.bgImage ? `
+                    <div class="mt-3.5 pt-3 border-t border-zinc-200/60 dark:border-zinc-800 flex items-center gap-3">
+                      <div class="w-16 h-10 rounded-lg overflow-hidden border border-zinc-300 dark:border-zinc-700 shrink-0 bg-cover bg-center shadow-xs" style="background-image: url('${state.bgImage}')"></div>
+                      <div class="text-xs truncate flex-1">
+                        <span class="block font-semibold ${state.theme === 'dark' ? 'text-zinc-200' : 'text-zinc-800'}">
+                          ${state.bgEnabled ? t.bgStatusEnabled : t.bgStatusDisabled}
+                        </span>
+                        <span class="block truncate text-[11px] ${state.theme === 'dark' ? 'text-zinc-400' : 'text-zinc-500'}">
+                          ${state.bgEnabled ? (state.language === 'pl' ? 'Widoczne na pełnej szerokości okna na wszystkich ekranach' : 'Visible full-width across all screens') : (state.language === 'pl' ? 'Wyłączone (kliknij przycisk obok, aby włączyć)' : 'Disabled (click toggle button to enable)')}
+                        </span>
+                      </div>
+                    </div>
+                  ` : ''}
+
+                  <!-- Suwak przeźroczystości -->
+                  <div class="mt-4 pt-3.5 border-t border-zinc-200/70 dark:border-zinc-800/80">
+                    <div class="flex items-center justify-between mb-2">
+                      <label for="bg-opacity-slider" class="text-xs font-semibold ${state.theme === 'dark' ? 'text-zinc-300' : 'text-zinc-700'}">
+                        ${t.bgOpacityLabel}
+                      </label>
+                      <span class="text-xs font-bold px-2.5 py-0.5 rounded-lg border tabular-nums ${state.theme === 'dark' ? 'bg-zinc-800 text-amber-400 border-zinc-700' : 'bg-zinc-100 text-amber-600 border-zinc-200 shadow-xs'}">
+                        ${state.bgOpacity}%
+                      </span>
+                    </div>
+
+                    <div class="relative py-1">
+                      <input
+                        id="bg-opacity-slider"
+                        type="range"
+                        min="0"
+                        max="100"
+                        step="20"
+                        value="${state.bgOpacity}"
+                        class="w-full h-2 rounded-lg appearance-none cursor-pointer accent-amber-500 transition-all ${state.theme === 'dark' ? 'bg-zinc-800 hover:bg-zinc-700' : 'bg-zinc-200 hover:bg-zinc-300'}"
+                      />
+                    </div>
+
+                    <div class="grid grid-cols-6 gap-1 sm:gap-1.5 mt-2">
+                      ${[0, 20, 40, 60, 80, 100].map(step => `
+                        <button
+                          type="button"
+                          data-step-val="${step}"
+                          class="btn-step-opacity py-1 text-[11px] font-semibold rounded-md border transition-all cursor-pointer text-center ${
+                            state.bgOpacity === step
+                              ? state.theme === 'dark'
+                                ? 'bg-amber-500/20 border-amber-500/60 text-amber-300 font-bold shadow-xs'
+                                : 'bg-amber-50 border-amber-400 text-amber-800 font-bold shadow-xs'
+                              : state.theme === 'dark'
+                              ? 'border-zinc-800/80 bg-zinc-900/60 hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200'
+                              : 'border-zinc-200 bg-white hover:bg-zinc-100 text-zinc-600 hover:text-zinc-900 shadow-xs'
+                          }"
+                        >
+                          ${step}%
+                        </button>
+                      `).join('')}
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Przycisk Start -->
+                <button
+                  id="btn-start-countdown"
+                  type="button"
+                  class="w-full py-4 px-6 rounded-xl font-bold text-base sm:text-lg flex items-center justify-center gap-2.5 transition-all transform active:scale-[0.99] shadow-lg cursor-pointer ${state.theme === 'dark' ? 'bg-zinc-100 hover:bg-white text-zinc-950 shadow-zinc-200/10' : 'bg-zinc-900 hover:bg-zinc-800 text-white shadow-zinc-900/20'}"
+                >
+                  ${ICONS.play}
+                  <span>${t.startCountdown}</span>
+                </button>
+
+              </div>
+            ` : ''}
+
+            <!-- EKRAN 2: ODLICZANIE -->
+            ${state.screen === 'running' ? `
+              <div class="w-full flex flex-col items-center justify-center text-center">
+                <div class="w-full max-w-4xl mx-auto rounded-3xl border p-6 sm:p-9 transition-all shadow-2xl backdrop-blur-xl flex flex-col items-center justify-center ${state.theme === 'dark' ? 'bg-zinc-950/70 border-zinc-800/80 shadow-black/60' : 'bg-white/75 border-zinc-200/90 shadow-zinc-900/10'}">
+                  
+                  <div class="w-full max-w-2xl px-4 mx-auto my-2 sm:my-5 select-none flex flex-col items-center justify-center">
+                    <svg
+                      id="svg-timer-container"
+                      viewBox="${timeInfo.hasHours ? '0 0 780 160' : '0 0 520 160'}"
+                      class="w-full h-auto transition-colors select-none ${isLast10Seconds ? 'text-[#e81310]' : (state.theme === 'dark' ? 'text-zinc-100' : 'text-zinc-900')}"
+                      style="${state.bgImage && state.bgEnabled ? 'filter: drop-shadow(0 3px 12px rgba(0,0,0,0.5));' : ''}"
+                    >
+                      <text
+                        id="svg-timer-text"
+                        x="50%"
+                        y="52%"
+                        dominant-baseline="central"
+                        text-anchor="middle"
+                        fill="currentColor"
+                        font-family="'Plus Jakarta Sans', system-ui, -apple-system, sans-serif"
+                        font-weight="800"
+                        font-size="${timeInfo.hasHours ? '130' : '145'}"
+                        letter-spacing="-0.02em"
+                        style="font-variant-numeric: tabular-nums; font-feature-settings: 'tnum';"
+                      >
+                        ${timeInfo.hasHours ? `${timeInfo.hoursStr}:${timeInfo.minutesStr}:${timeInfo.secondsStr}` : `${timeInfo.minutesStr}:${timeInfo.secondsStr}`}
+                      </text>
+                    </svg>
+
+                    <div class="w-full flex justify-around text-xs sm:text-sm uppercase tracking-widest font-medium mt-2 ${state.theme === 'dark' ? 'text-zinc-400' : 'text-zinc-500'}">
+                      <span id="unit-hours-label" style="display: ${timeInfo.hasHours ? 'inline' : 'none'}">${t.hours}</span>
+                      <span>${t.minutes}</span>
+                      <span>${t.seconds}</span>
+                    </div>
+                  </div>
+
+                  <div class="w-full max-w-3xl mt-4 mb-2 sm:mt-6 sm:mb-3 px-2">
+                    <div class="w-full h-5 sm:h-6 rounded-full overflow-hidden p-0.5 border shadow-inner transition-colors flex justify-center ${state.theme === 'dark' ? 'bg-zinc-900 border-zinc-800' : 'bg-zinc-200 border-zinc-300'}">
+                      <div
+                        id="progress-bar-inner"
+                        class="h-full rounded-full transition-all duration-200 ${isLast10Seconds && state.isRunning ? 'pulse-second' : ''}"
+                        style="width: ${Math.max(1, progressFraction * 100)}%; background-color: ${progressBarColor}; box-shadow: ${isLast10Seconds ? '0 0 16px rgba(232, 19, 16, 0.8)' : `0 0 10px ${progressBarColor}40`};"
+                      ></div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            ` : ''}
+
+            <!-- EKRAN 3: ZAKOŃCZENIE -->
+            ${state.screen === 'finished' ? `
+              <div class="w-full max-w-2xl text-center py-10 px-6 sm:px-10 animate-finish-pop flex flex-col items-center rounded-3xl border shadow-2xl backdrop-blur-xl ${state.theme === 'dark' ? 'bg-zinc-950/70 border-zinc-800/80 shadow-black/60' : 'bg-white/75 border-zinc-200/90 shadow-zinc-900/10'}">
+                <div class="my-10">
+                  <h2 class="text-4xl sm:text-6xl md:text-7xl font-black tracking-tight text-[#e81310] dark:text-[#e81310] break-words leading-tight">
+                    ${state.endMessage || t.defaultEndMessage}
+                  </h2>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-md mx-auto">
+                  <button
+                    id="btn-finished-reset"
+                    type="button"
+                    class="w-full h-14 rounded-xl font-bold text-base flex items-center justify-center gap-2.5 transition-all shadow-lg active:scale-95 cursor-pointer ${state.theme === 'dark' ? 'bg-zinc-100 hover:bg-white text-zinc-950 shadow-white/10' : 'bg-zinc-900 hover:bg-zinc-800 text-white shadow-zinc-900/20'}"
+                  >
+                    ${ICONS.rotateCcw}
+                    <span>${t.reset}</span>
+                  </button>
+
+                  <button
+                    id="btn-finished-restart"
+                    type="button"
+                    class="w-full h-14 rounded-xl font-bold text-base flex items-center justify-center gap-2.5 transition-all border active:scale-95 cursor-pointer ${state.theme === 'dark' ? 'border-zinc-800 bg-zinc-900/80 text-zinc-200 hover:bg-zinc-800 hover:text-white' : 'border-zinc-300 bg-white text-zinc-800 hover:bg-zinc-50 shadow-sm'}"
+                  >
+                    ${ICONS.play}
+                    <span>${t.repeatCountdown}</span>
+                  </button>
+                </div>
+              </div>
+            ` : ''}
+
+          </main>
+
+          <!-- Stopka Aplikacji -->
+          <footer class="w-full py-4 px-6 border-t text-xs sm:text-sm transition-colors relative z-10 ${state.theme === 'dark' ? 'border-zinc-900 bg-zinc-950/80 text-zinc-400' : 'border-zinc-200 bg-white text-zinc-600'}">
+            <div class="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-3 relative">
+              <div class="hidden sm:block w-20"></div>
+
+              <div class="flex items-center gap-1.5 font-medium sm:absolute sm:left-1/2 sm:-translate-x-1/2">
+                <span>Created by</span>
+                <a
+                  href="https://szymonwesolowski.pl"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="font-semibold transition-colors underline decoration-dotted underline-offset-4 ${state.theme === 'dark' ? 'text-zinc-200 hover:text-white' : 'text-zinc-800 hover:text-zinc-950'}"
+                >
+                  SzymonWesolowski.pl
+                </a>
+              </div>
+
+              <div class="flex items-center gap-2.5 sm:ml-auto">
+                <a
+                  href="https://www.instagram.com/szymonwesolowskipl?mdxt=MXJxeWZhcjZnbWgwdQ%3D%3D"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Instagram"
+                  title="Instagram: @szymonwesolowskipl"
+                  class="p-2 rounded-lg border transition-all transform hover:scale-110 ${state.theme === 'dark' ? 'bg-zinc-900/80 border-zinc-800 text-zinc-300 hover:text-white hover:border-zinc-700 hover:bg-zinc-800' : 'bg-zinc-100 border-zinc-200 text-zinc-700 hover:text-zinc-900 hover:border-zinc-300 hover:bg-zinc-200/80'}"
+                >
+                  ${ICONS.instagram}
+                </a>
+
+                <a
+                  href="https://www.facebook.com/share/1CVzYvv5Yu/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Facebook"
+                  title="Facebook"
+                  class="p-2 rounded-lg border transition-all transform hover:scale-110 ${state.theme === 'dark' ? 'bg-zinc-900/80 border-zinc-800 text-zinc-300 hover:text-white hover:border-zinc-700 hover:bg-zinc-800' : 'bg-zinc-100 border-zinc-200 text-zinc-700 hover:text-zinc-900 hover:border-zinc-300 hover:bg-zinc-200/80'}"
+                >
+                  ${ICONS.facebook}
+                </a>
+              </div>
+            </div>
+          </footer>
+
+          <!-- Toast notification -->
+          ${state.toastMessage ? `
+            <div class="fixed bottom-16 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-xl shadow-2xl border text-xs sm:text-sm font-semibold transition-all transform animate-bounce ${state.theme === 'dark' ? 'bg-zinc-900 text-zinc-100 border-zinc-700' : 'bg-zinc-900 text-white border-zinc-800'}">
+              ${state.toastMessage}
+            </div>
+          ` : ''}
+        `;
+
+        document.getElementById('app').innerHTML = appHtml;
+        bindEvents();
+      }
+
+      // Bind DOM Event Listeners after rendering HTML
+      function bindEvents() {
+        const getEl = id => document.getElementById(id);
+
+        if (getEl('btn-sound-toggle')) getEl('btn-sound-toggle').onclick = handleSoundToggle;
+        if (getEl('btn-fullscreen-toggle')) getEl('btn-fullscreen-toggle').onclick = toggleFullscreen;
+        if (getEl('btn-theme-toggle')) getEl('btn-theme-toggle').onclick = handleThemeToggle;
+        if (getEl('btn-share-link')) getEl('btn-share-link').onclick = handleShareLink;
+
+        if (getEl('btn-lang-pl')) getEl('btn-lang-pl').onclick = () => handleLanguageChange('pl');
+        if (getEl('btn-lang-en')) getEl('btn-lang-en').onclick = () => handleLanguageChange('en');
+
+        if (getEl('btn-toggle-bg-header')) getEl('btn-toggle-bg-header').onclick = handleToggleBg;
+        if (getEl('btn-toggle-pause-header')) getEl('btn-toggle-pause-header').onclick = handleTogglePause;
+        if (getEl('btn-reset-header')) getEl('btn-reset-header').onclick = handleResetToSetup;
+
+        if (getEl('btn-close-notice')) getEl('btn-close-notice').onclick = () => {
+          state.loadedFromUrlNotice = false;
+          render();
+        };
+
+        // Setup screen inputs
+        if (getEl('hours-input')) {
+          const inp = getEl('hours-input');
+          inp.onchange = (e) => {
+            const val = parseInt(e.target.value, 10);
+            state.hours = isNaN(val) ? 0 : Math.max(0, Math.min(99, val));
+            render();
+          };
+        }
+        if (getEl('minutes-input')) {
+          const inp = getEl('minutes-input');
+          inp.onchange = (e) => {
+            const val = parseInt(e.target.value, 10);
+            state.minutes = isNaN(val) ? 0 : Math.max(0, Math.min(59, val));
+            render();
+          };
+        }
+        if (getEl('seconds-input')) {
+          const inp = getEl('seconds-input');
+          inp.onchange = (e) => {
+            const val = parseInt(e.target.value, 10);
+            state.seconds = isNaN(val) ? 0 : Math.max(0, Math.min(59, val));
+            render();
+          };
+        }
+
+        if (getEl('btn-hours-dec')) getEl('btn-hours-dec').onclick = () => { state.hours = Math.max(0, state.hours - 1); render(); };
+        if (getEl('btn-hours-inc')) getEl('btn-hours-inc').onclick = () => { state.hours = Math.min(99, state.hours + 1); render(); };
+        if (getEl('btn-hours-reset')) getEl('btn-hours-reset').onclick = () => { state.hours = 0; render(); };
+
+        if (getEl('btn-minutes-dec')) getEl('btn-minutes-dec').onclick = () => { state.minutes = Math.max(0, state.minutes - 1); render(); };
+        if (getEl('btn-minutes-inc')) getEl('btn-minutes-inc').onclick = () => { state.minutes = Math.min(59, state.minutes + 1); render(); };
+        if (getEl('btn-minutes-reset')) getEl('btn-minutes-reset').onclick = () => { state.minutes = 0; render(); };
+
+        if (getEl('btn-seconds-dec')) getEl('btn-seconds-dec').onclick = () => { state.seconds = Math.max(0, state.seconds - 1); render(); };
+        if (getEl('btn-seconds-inc')) getEl('btn-seconds-inc').onclick = () => { state.seconds = Math.min(59, state.seconds + 1); render(); };
+        if (getEl('btn-seconds-reset')) getEl('btn-seconds-reset').onclick = () => { state.seconds = 0; render(); };
+
+        // Presets & Add buttons
+        document.querySelectorAll('.btn-preset').forEach(btn => {
+          btn.onclick = () => {
+            const h = parseInt(btn.dataset.presetH, 10);
+            const m = parseInt(btn.dataset.presetM, 10);
+            const s = parseInt(btn.dataset.presetS, 10);
+            const label = btn.dataset.presetLabel;
+            state.hours = h;
+            state.minutes = m;
+            state.seconds = s;
+            showToast(`${getT().toastPreset} ${label}`);
+            render();
+          };
+        });
+
+        document.querySelectorAll('.btn-add-h').forEach(btn => {
+          btn.onclick = () => {
+            state.hours = Math.min(99, state.hours + parseInt(btn.dataset.addH, 10));
+            render();
+          };
+        });
+
+        document.querySelectorAll('.btn-add-m').forEach(btn => {
+          btn.onclick = () => {
+            state.minutes = Math.min(59, state.minutes + parseInt(btn.dataset.addM, 10));
+            render();
+          };
+        });
+
+        document.querySelectorAll('.btn-add-s').forEach(btn => {
+          btn.onclick = () => {
+            state.seconds = Math.min(59, state.seconds + parseInt(btn.dataset.addS, 10));
+            render();
+          };
+        });
+
+        // Final message input
+        if (getEl('end-message')) {
+          const inp = getEl('end-message');
+          inp.oninput = (e) => {
+            state.endMessage = e.target.value;
+            const counter = getEl('end-msg-counter');
+            if (counter) counter.textContent = `${state.endMessage.length}/100`;
+          };
+        }
+
+        // Custom Background upload & controls
+        if (getEl('btn-upload-file')) {
+          getEl('btn-upload-file').onclick = () => {
+            const fileInput = getEl('file-bg-input');
+            if (fileInput) fileInput.click();
+          };
+        }
+
+        if (getEl('file-bg-input')) {
+          getEl('file-bg-input').onchange = (e) => {
+            const file = e.target.files?.[0];
+            if (file) handleBgFileChange(file);
+          };
+        }
+
+        if (getEl('btn-toggle-bg')) getEl('btn-toggle-bg').onclick = handleToggleBg;
+        if (getEl('btn-remove-bg')) getEl('btn-remove-bg').onclick = handleRemoveBg;
+
+        if (getEl('bg-opacity-slider')) {
+          getEl('bg-opacity-slider').onchange = (e) => {
+            handleBgOpacityChange(parseInt(e.target.value, 10));
+          };
+          getEl('bg-opacity-slider').oninput = (e) => {
+            handleBgOpacityChange(parseInt(e.target.value, 10));
+          };
+        }
+
+        document.querySelectorAll('.btn-step-opacity').forEach(btn => {
+          btn.onclick = () => {
+            handleBgOpacityChange(parseInt(btn.dataset.stepVal, 10));
+          };
+        });
+
+        if (getEl('btn-start-countdown')) getEl('btn-start-countdown').onclick = handleStartCountdown;
+
+        // Finished screen buttons
+        if (getEl('btn-finished-reset')) getEl('btn-finished-reset').onclick = handleResetToSetup;
+        if (getEl('btn-finished-restart')) getEl('btn-finished-restart').onclick = handleRestartSame;
+      }
+
+      // Initial Render
+      render();
+    </script>
   </body>
 </html>
-
